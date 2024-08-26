@@ -2,6 +2,10 @@
 
 Este repositório contém o código-fonte de uma aplicação web para gerenciamento de estoque de produtos, integrando-se a um banco de dados MySQL. O projeto foi desenvolvido com base no [tutorial da AWS](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/TUT_WebAppWithRDS.html) que demonstra a integração de uma aplicação web com o Amazon RDS (_Relational Database Service_), utilizando PHP hospedado em uma instância EC2 da AWS.
 
+## Vídeo Demonstrativo
+
+Este [vídeo](https://drive.google.com/file/d/1pbsbDmULi-4OUvY3kV4L_8J_Gf4EoI7X/view?usp=drive_link) demonstra a aplicação em execução, com uma visão detalhada das máquinas/serviços AWS utilizados. 
+
 ## Funcionalidades
 
 A aplicação oferece as seguintes funcionalidades:
@@ -105,14 +109,7 @@ O deploy desta aplicação utiliza os seguintes serviços da AWS:
 - **VPC e Sub-redes**:
    - A instância EC2 está localizada em uma sub-rede pública.
    - O banco de dados RDS (se utilizado) reside em uma sub-rede privada para maior segurança.
-
-## Vídeo Demonstrativo
-
-Este [vídeo](https://link-do-video) demonstra a aplicação em execução, com uma visão detalhada das máquinas/serviços AWS utilizados. O vídeo cobre:
-- **Deploy da Instância EC2**: Configuração do Apache, PHP, e código da aplicação.
-- **Configuração da Instância RDS** (se aplicável): Criação do banco de dados MariaDB/MySQL.
-- **Conexões entre EC2 e RDS**: Como as instâncias EC2 e RDS se comunicam dentro da VPC.
-
+  
 ## Como Reproduzir o Projeto
 
 ### 1. Criar e Configurar a Instância EC2:

@@ -3,7 +3,6 @@
 <body>
 <h1>Gerenciador de Estoque</h1>
 <?php
-
   /* Conectar ao MySQL e selecionar o banco de dados */
   $connection = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD);
 
@@ -17,13 +16,18 @@
   /* Garantir que a tabela PRODUCTS exista */
   VerifyProductsTable($connection, DB_DATABASE);
 
+  /* Se o botão "Clear Table" for pressionado, limpar os dados da tabela */
+  if (isset($_POST['clear_table'])) {
+    ClearProductsTable($connection);
+  }
+
   /* Se os campos estiverem preenchidos, adiciona um produto à tabela PRODUCTS */
   $product_name = htmlentities($_POST['Product_Name']);
   $price = htmlentities($_POST['Price']);
   $brand = htmlentities($_POST['Brand']);
   $in_stock = htmlentities($_POST['In_Stock']);
 
-  if (strlen($product_name) || strlen($price) || strlen($brand) || strlen($in_stock)) {
+  if (strlen($product_name) && strlen($price) && strlen($brand) && strlen($in_stock)) {
     AddProduct($connection, $product_name, $price, $brand, $in_stock);
   }
 ?>
@@ -39,19 +43,22 @@
     </tr>
     <tr>
       <td>
-        <input type="text" name="Product_Name" maxlength="100" size="30" />
+        <input type="text" name="Product_Name" maxlength="100" size="30" required />
       </td>
       <td>
-        <input type="text" name="Price" maxlength="10" size="10" />
+        <input type="text" name="Price" maxlength="10" size="10" required />
       </td>
       <td>
-        <input type="text" name="Brand" maxlength="50" size="30" />
+        <input type="text" name="Brand" maxlength="50" size="30" value="Nome da Marca" required />
       </td>
       <td>
-        <input type="text" name="In_Stock" maxlength="1" size="1" />
+        <select name="In_Stock" required>
+          <option value="1">Disponível</option>
+          <option value="0">Em falta</option>
+        </select>
       </td>
       <td>
-        <input type="submit" value="Add Product" />
+        <input type="submit" value="Adicionar Produto" />
       </td>
     </tr>
   </table>
@@ -70,13 +77,13 @@
 <?php
   $result = mysqli_query($connection, "SELECT * FROM PRODUCTS");
 
-  while($query_data = mysqli_fetch_row($result)) {
+  while($query_data = mysqli_fetch_assoc($result)) {
     echo "<tr>";
-    echo "<td>", $query_data[0], "</td>",
-         "<td>", $query_data[1], "</td>",
-         "<td>R$", number_format($query_data[2], 2, ',', '.'), "</td>",
-         "<td>", $query_data[3], "</td>",
-         "<td>", $query_data[4] ? 'Disponível' : 'Em falta', "</td>";
+    echo "<td>", $query_data['ID'], "</td>",
+         "<td>", $query_data['Product_Name'], "</td>",
+         "<td>R$", number_format($query_data['Price'], 2, ',', '.'), "</td>",
+         "<td>", $query_data['Brand'], "</td>",
+         "<td>", $query_data['In_Stock'] == 1 ? 'Disponível' : 'Em falta', "</td>";
     echo "</tr>";
   }
 
@@ -85,6 +92,11 @@
 ?>
 
 </table>
+
+<!-- Botão para limpar os dados da tabela -->
+<form action="<?PHP echo $_SERVER['SCRIPT_NAME'] ?>" method="POST">
+  <input type="submit" name="clear_table" value="Limpar Tabela" />
+</form>
 
 </body>
 </html>
@@ -95,7 +107,7 @@ function AddProduct($connection, $product_name, $price, $brand, $in_stock) {
    $pname = mysqli_real_escape_string($connection, $product_name);
    $pprice = mysqli_real_escape_string($connection, $price);
    $pbrand = mysqli_real_escape_string($connection, $brand);
-   $pstock = mysqli_real_escape_string($connection, $in_stock);
+   $pstock = intval($in_stock);
 
    $query = "INSERT INTO PRODUCTS (Product_Name, Price, Brand, In_Stock) VALUES ('$pname', '$pprice', '$pbrand', '$pstock');";
 
@@ -118,16 +130,18 @@ function VerifyProductsTable($connection, $dbName) {
     if(!mysqli_query($connection, $query)) {
       echo("<p>Erro ao criar tabela de PRODUTOS.</p>");
     }
-  } else {
-    // Se a tabela já existir, adicione o campo Brand, se não estiver presente
-    $result = mysqli_query($connection, "SHOW COLUMNS FROM PRODUCTS LIKE 'Brand'");
-    if(mysqli_num_rows($result) == 0) {
-      $query = "ALTER TABLE PRODUCTS ADD Brand VARCHAR(50)";
-      if(!mysqli_query($connection, $query)) {
-        echo("<p>Erro ao adicionar campo Brand.</p>");
-      }
-    }
   }
+}
+
+/* Função para limpar a tabela PRODUCTS */
+function ClearProductsTable($connection) {
+   $query = "TRUNCATE TABLE PRODUCTS"; // Ou DELETE FROM PRODUCTS
+
+   if(!mysqli_query($connection, $query)) {
+       echo("<p>Erro ao limpar a tabela de produtos.</p>");
+   } else {
+       echo("<p>Tabela de produtos limpa com sucesso.</p>");
+   }
 }
 
 /* Função para verificar a existência da tabela */
